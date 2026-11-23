@@ -60,7 +60,56 @@ A에서 B로 초당 2m씩 간다. 단위 방향, 속도, 0.5초 뒤 위치를 �
 
 **통과 기준**
 
-- [ ] 첫 호출 결과는 (1.6,2.8)이고 이동 거리는 1이다.
+- ✅ 첫 호출 결과는 (1.6,2.8)이고 이동 거리는 1이다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+struct Vector2D final {
+    Vector2D() : X(0.f), Y(0.f) {}
+    Vector2D(float x, float y) : X(x), Y(y) {}
+    
+    Vector2D operator-(const Vector2D& other) const {
+        return {this->X - other.X, this->Y - other.Y};
+    }
+    Vector2D operator+(const Vector2D& other) const {
+        return {this->X + other.X, this->Y + other.Y};
+    }
+    
+    Vector2D operator*(const Vector2D& other) const {
+        return {this->X * other.X, this->Y * other.Y};
+    }
+    Vector2D operator*(const float& param) const {
+        return {this->X * param, this->Y * param};
+    }
+    
+    Vector2D operator/(const Vector2D& other) const {
+        return {this->X / other.X, this->Y / other.Y};
+    }
+    Vector2D operator/(const float& param) const {
+        return {this->X / param, this->Y / param};
+    }
+    
+    const float Get_Distance() { return std::sqrtf(X * X + Y * Y); }
+    
+    float X, Y;
+};
+
+Vector2D Displacement(Vector2D Start, Vector2D End, float Distance) {
+    Vector2D Vector = End - Start;
+    Vector2D UnitVec = Vector / Vector.Get_Distance();
+    return Start + UnitVec * Distance;
+}
+
+int main() {
+    float Distance = 2.f;
+    Vector2D Result = Displacement({1.f, 2.f}, {4.f, 6.f}, Distance);
+    std::cout << "CurPost : { " << Result.X << ", " << Result.Y << " }" << ", Dist : " << Distance << "m"; 
+    return 0;
+}
+```
+</details>
 
 ### 4일차 · 경과 시간 반영
 
@@ -70,7 +119,40 @@ A에서 B로 초당 2m씩 간다. 단위 방향, 속도, 0.5초 뒤 위치를 �
 
 **통과 기준**
 
-- [ ] 두 실행 모두 (2.2,3.6)에 도달한다.
+- ✅ 두 실행 모두 (2.2,3.6)에 도달한다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+Vector2D MoveTowards(Vector2D Start, Vector2D End, float Velocity, float dt) {
+    Vector2D Vector = End - Start;
+    Vector2D UnitVec = Vector / Vector.Get_Distance();
+    
+    return Start + UnitVec * Velocity * dt;
+}
+
+int main() {
+    Vector2D Start = {1.f, 2.f}, End = {4.f, 6.f};
+    float Speed = 2.f;
+    float DT = 1.f;
+    Vector2D Result = MoveTowards(Start, End, Speed, DT);
+    std::cout << "CurPost : { " << Result.X << ", " << Result.Y << " }" << ", Speed : " << Speed << "m/s"
+        << ", DeltaTime : " << DT << "\n"; 
+    
+    DT = 0.25f;
+    Vector2D CurPos = Start;
+    for (int i = 0; i < 4; ++i) {
+        CurPos = MoveTowards(CurPos, End, Speed, DT);
+        
+        std::cout << "CurPost : { " << CurPos.X << ", " << CurPos.Y << " }" << ", Speed : " << Speed << "m/s"
+            << ", DeltaTime : " << DT << "\n"; 
+    }
+
+    return 0;
+}
+```
+</details>
 
 ### 5일차 · 목표가 멀어지면
 
