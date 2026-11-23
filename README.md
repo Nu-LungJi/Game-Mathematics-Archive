@@ -103,7 +103,7 @@ Vector2D Displacement(Vector2D Start, Vector2D End, float Distance) {
 }
 
 int main() {
-    float Distance = 2.f;
+    float Distance = 1.f;
     Vector2D Result = Displacement({1.f, 2.f}, {4.f, 6.f}, Distance);
     std::cout << "CurPost : { " << Result.X << ", " << Result.Y << " }" << ", Dist : " << Distance << "m"; 
     return 0;
@@ -162,8 +162,38 @@ int main() {
 
 **통과 기준**
 
-- [ ] 두 경우 모두 1m다.
-- [ ] 차이가 나면 방향 벡터의 길이를 출력해 보라.
+- ✅ 두 경우 모두 1m다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float MovementDistance(Vector2D Start, Vector2D End, float Velocity, float dt) {
+    Vector2D Vector = End - Start;
+    Vector2D UnitVec = Vector / Vector.Get_Distance();
+    Vector2D Result = UnitVec * Velocity * dt;
+    
+    return Result.Get_Distance();
+}
+
+int main() {
+    Vector2D Start = {1.f, 2.f}, End = {4.f, 6.f};
+    float Speed = 2.f, DT = 0.5f;
+
+    float Result = MovementDistance(Start, End, Speed, DT);
+    std::cout << "Start : {" << Start.X << ", " << Start.Y << "}, " << "End : {" << End.X << ", " << End.Y << "}, "
+        << "Distance : " << Result << "m\n";
+    
+    End = {7.f,10.f};
+    
+    Result = MovementDistance(Start, End, Speed, DT);
+    std::cout << "Start : {" << Start.X << ", " << Start.Y << "}, " << "End : {" << End.X << ", " << End.Y << "}, "
+        << "Distance : " << Result << "m\n";
+
+    return 0;
+}
+```
+</details>
 
 ### 6일차 · 도착 처리
 
@@ -173,8 +203,39 @@ int main() {
 
 **통과 기준**
 
-- [ ] 첫 호출에 정확히 도착하고 두 번째에도 같은 좌표다.
-- [ ] 길이 0인 방향을 정규화할 필요가 없다.
+- ✅ 첫 호출에 정확히 도착하고 두 번째에도 같은 좌표다.
+- ✅ 길이 0인 방향을 정규화할 필요가 없다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+Vector2D MoveTowards(Vector2D Start, Vector2D End, float Velocity, float dt) {
+    Vector2D Vector = End - Start;
+    
+    float Distance = Vector.Get_Distance();
+    if (Distance == 0.f) return End;
+    
+    Vector2D UnitVec = Vector / Distance;
+    float Movement = Velocity * dt;
+    
+    return Distance <= Movement ? End : Start + UnitVec * Movement;
+}
+
+int main() {
+     Vector2D Start = {0.f, 0.f};
+    Vector2D End = {0.3f, 0.4f};
+
+    float Speed = 2.f;
+    float DT = 1.f;
+
+    Vector2D First = MoveTowards(Start, End, Speed, DT);
+    Vector2D Second = MoveTowards(First, End, Speed, DT);
+
+    return 0;
+}
+```
+</details>
 
 #### 이번 주 실험 기록
 
