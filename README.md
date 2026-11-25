@@ -280,8 +280,27 @@ int main() {
 
 **통과 기준**
 
-- [ ] 끝점은 약 (1.732,1)이다.
-- [ ] 삼각함수의 입력 단위를 확인하라.
+- ✅ 끝점은 약 (1.732,1)이다.
+- ✅ 삼각함수의 입력 단위를 확인하라.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+Vector2D Get_Coordinate(const float& Degree, const float& Length, Vector2D Start = {0.f, 0.f}) {
+    float Radian = DegreeToRadian(Degree);
+    return { Start.X + std::cosf(Radian) * Length, Start.Y + std::sinf(Radian) * Length };
+}
+int main() {
+    constexpr float Angle = 30.f;
+    constexpr float Length = 2.f;
+    Vector2D StartPoint = { 1.f, 1.f };
+    
+    Vector2D Coord = Get_Coordinate(Angle, Length, StartPoint);
+    std::cout << "Coordinate : { " << Coord.X << ", " << Coord.Y << " }" << '\n'; 
+}
+```
+</details>
 
 ### 4일차 · 마우스 조준
 
@@ -291,8 +310,26 @@ int main() {
 
 **통과 기준**
 
-- [ ] 각각 위쪽 90°, 왼쪽 180°를 가리킨다.
-- [ ] −180°도 같은 방향이다.
+- ✅ 각각 위쪽 90°, 왼쪽 180°를 가리킨다.
+- ✅ −180°도 같은 방향이다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float Get_Degree(Vector2D Start, Vector2D Target) {
+    Vector2D Direction = Target - Start;
+    return RadianToDegree(std::atan2f(Direction.Y, Direction.X));
+}
+int main() {
+    float StartDeg  = Get_Degree({2.f, 1.f}, {2.f, 4.f});
+    float EndDeg    = Get_Degree({2.f, 1.f}, {-1.f, 1.f});
+    
+    std::cout << "Start Degree : " << StartDeg << ", End Degree : " << EndDeg << '\n';
+    std::cout << "Rotation Result : " << EndDeg - StartDeg << '\n';
+}
+```
+</details>
 
 ### 5일차 · 경계 각도
 
@@ -302,8 +339,38 @@ int main() {
 
 **통과 기준**
 
-- [ ] 각각 +20°, −20°다.
-- [ ] 정확히 180° 차이일 때 어느 쪽을 택할지도 정하라.
+- ✅ 각각 +20°, −20°다.
+- ✅ 정확히 180° 차이일 때 어느 쪽을 택할지도 정하라.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float Get_MinimumDegree(Vector2D Vec1, Vector2D Vec2) {
+    float Diff = RadianToDegree(std::atan2f(Vec2.Y, Vec2.X)) - RadianToDegree(std::atan2f(Vec1.Y, Vec1.X));
+    if (Diff > 180.f) Diff -= 360.f;
+    else if (Diff <= -180.f) Diff += 360.f;
+    
+    return Diff;
+}
+int main() {
+    {
+        Vector2D Start  = Get_Coordinate(-10, 1, {0.f, 0.f});
+        Vector2D End    = Get_Coordinate(10, 1, {0.f, 0.f});
+        
+        std::cout << "Start : { " << Start.X << ", " << Start.Y << " }" << ", End : { " << End.X << ", " << End.Y << " }" << '\n';
+        std::cout << "Rotation Result : " << Get_MinimumDegree(Start, End) << '\n';
+    }
+    {
+        Vector2D Start  = Get_Coordinate(10, 1, {0.f, 0.f});
+        Vector2D End    = Get_Coordinate(350, 1, {0.f, 0.f});
+        
+        std::cout << "Start : { " << Start.X << ", " << Start.Y << " }" << ", End : { " << End.X << ", " << End.Y << " }" << '\n';
+        std::cout << "Rotation Result : " << Get_MinimumDegree(Start, End) << '\n';
+    }
+}
+```
+</details>
 
 ### 6일차 · 회전 속도 제한
 
@@ -313,13 +380,57 @@ int main() {
 
 **통과 기준**
 
-- [ ] [0°,360°) 표기로 356°, 2°, 8°, 10°다.
-- [ ] 마지막에 목표를 지나치지 않는다.
+- ✅ [0°,360°) 표기로 356°, 2°, 8°, 10°다.
+- ✅ 마지막에 목표를 지나치지 않는다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float Normalize_Degree(float Degree) {
+    Degree = std::fmod(Degree, 360.f);
+    if (Degree < 0.f) Degree += 360.f;
+
+    return Degree;
+}
+int main() {
+    int FrameCount = 4;
+        
+    float StartAngle = 350.f, EndAngel = 10.f;
+        
+    Vector2D Start  = Get_Coordinate(StartAngle, 1);
+    Vector2D End    = Get_Coordinate(EndAngel, 1);
+        
+    float MaxMovementAmount = Get_MinimumDegree(Start, End);
+    bool isPositive = MaxMovementAmount >= 0.f;
+    float CurMovementAmount = 0.f;
+        
+    constexpr float SpeedAngle = 60.f;
+    constexpr float DeltaTime = 0.1f;
+        
+    float DeltaAngle = SpeedAngle * DeltaTime * (isPositive ? 1.f : -1.f);
+            
+    while (FrameCount--) {
+      CurMovementAmount += DeltaAngle;
+      if ((isPositive && CurMovementAmount > MaxMovementAmount) || (!isPositive && CurMovementAmount < MaxMovementAmount)) 
+         CurMovementAmount = MaxMovementAmount;
+            
+      float Result = StartAngle + CurMovementAmount; 
+      Result = Normalize_Degree(Result);
+      std::cout << Result << " ";
+    }
+}
+```
+</details>
 
 #### 이번 주 실험 기록
 
 - **실행 화면** · 여기에 캡처를 붙이거나 실행 로그를 인용한다.
 - **발견한 점** · 각도가 0°를 지나는 프레임에서 무엇을 확인했나?
+
+#### Extra : 수학적 설명
+Q. 왜 최단 회전량을 -180° ~ +180° 범위로 제한하는지 수학적으로 설명.
+A. 두 목표(Edge)가 이루는 각이 -180°보다 더 작아지거나 +180°보다 더 커지는 경우, 반대 방향의 각도가 더 작기에 반대 방향으로 회전하는 것이 더 짧은 회전 경로가 된다. 그렇기에 -180°보다 더 작은 경우, 360°를 더하거나, +180°보다 큰 경우, 360°를 빼는 과정을 통해, 회전 방향의 부호는 유지하면서, 회전량을 -180° ~ +180° 범위로 보정하여 최단 회전량을 구할 수 있게 된다.
 
 <a id="week-3"></a>
 
