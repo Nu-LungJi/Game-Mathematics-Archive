@@ -476,8 +476,36 @@ A. 두 목표(Edge)가 이루는 각이 -180°보다 더 작아지거나 +180°�
 
 **통과 기준**
 
-- [ ] 거리 제한이 없다면 둘 다 초록이다.
-- [ ] 경계 비교에는 작은 수치 오차를 허용한다.
+- ✅ 거리 제한이 없다면 둘 다 초록이다.
+- ✅ 경계 비교에는 작은 수치 오차를 허용한다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float DotProduct(Vector2D Vec1, Vector2D Vec2) { return Vec1.X * Vec2.X + Vec1.Y * Vec2.Y; }
+
+Vector2D Normalize(Vector2D Vec) { return Vec / Vec.Get_Distance(); }
+
+  // Day 3
+    {
+        Observer Obs;
+    
+        float Epsilon = FLT_EPSILON;
+        
+        Vector2D TargetPosA = { 1.f, 1.f };
+        Vector2D TargetPosB = { 10.f, 10.f };
+        
+        float ResultA = DotProduct(Normalize(TargetPosA - Obs.Position), Normalize(Obs.Forward));
+        float ResultB = DotProduct(Normalize(TargetPosB - Obs.Position), Normalize(Obs.Forward));
+        
+        float Threshold = std::cosf(Obs.ViewDegree / 2.f * std::numbers::pi / 180.f);
+        
+        if (ResultA >= Threshold - Epsilon) std::cout << "true" << '\n';
+        if (ResultB >= Threshold - Epsilon) std::cout << "true" << '\n';
+    }
+```
+</details>
 
 ### 4일차 · 삼각형 법선
 
@@ -487,7 +515,30 @@ A. 두 목표(Edge)가 이루는 각이 -180°보다 더 작아지거나 +180°�
 
 **통과 기준**
 
-- [ ] 화살표는 (0,−1,0) 방향이며 삼각형 바닥에 수직이다.
+- ✅ 화살표는 (0,−1,0) 방향이며 삼각형 바닥에 수직이다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+Vector3D CrossProduct(Vector3D Vec1, Vector3D Vec2) {
+    return { Vec1.Y * Vec2.Z - Vec1.Z * Vec2.Y, Vec1.Z * Vec2.X - Vec1.X * Vec2.Z, Vec1.X * Vec2.Y - Vec1.Y * Vec2.X };
+}
+
+    // Day 4
+    {
+        Vector3D TargetA = { 0.f, 0.f, 0.f };
+        Vector3D TargetB = { 1.f, 0.f, 0.f };
+        Vector3D TargetC = { 0.f, 0.f, 1.f };
+        
+        Vector3D AtoB = TargetB - TargetA;
+        Vector3D BtoC = TargetC - TargetB;
+        
+        Vector3D Result = Normalize(CrossProduct(AtoB, BtoC));
+        Result.Print_Element();
+    }
+```
+</details>
 
 ### 5일차 · 꼭짓점 순서
 
@@ -497,8 +548,33 @@ A. 두 목표(Edge)가 이루는 각이 -180°보다 더 작아지거나 +180°�
 
 **통과 기준**
 
-- [ ] 법선이 반대로 뒤집힌다.
-- [ ] 단위 법선끼리의 내적은 −1이다.
+- ✅ 법선이 반대로 뒤집힌다.
+- ✅ 단위 법선끼리의 내적은 −1이다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float DotProduct(Vector3D Vec1, Vector3D Vec2) {
+    return Vec1.X * Vec2.X + Vec1.Y * Vec2.Y +Vec1.Z * Vec2.Z;
+}
+Vector3D CrossProduct(Vector3D Vec1, Vector3D Vec2) {
+    return { Vec1.Y * Vec2.Z - Vec1.Z * Vec2.Y, Vec1.Z * Vec2.X - Vec1.X * Vec2.Z, Vec1.X * Vec2.Y - Vec1.Y * Vec2.X };
+}
+
+// Day 5
+    {
+        Vector3D TargetA = { 0.f, 0.f, 0.f };
+        Vector3D TargetB = { 1.f, 0.f, 0.f };
+        Vector3D TargetC = { 0.f, 0.f, 1.f };
+        
+        Vector3D ResultA = Normalize(CrossProduct(TargetB - TargetA, TargetC - TargetB));
+        Vector3D ResultB = Normalize(CrossProduct(TargetC - TargetA, TargetB - TargetC));
+        
+        float FinalResult = DotProduct(ResultA, ResultB);
+    }
+```
+</details>
 
 ### 6일차 · 벽을 따라 이동
 
@@ -508,7 +584,30 @@ A. 두 목표(Edge)가 이루는 각이 -180°보다 더 작아지거나 +180°�
 
 **통과 기준**
 
-- [ ] 입력 속도 (−3,4)는 (0,4), 벽에서 멀어지는 (3,4)는 그대로 (3,4)다.
+- ✅ 입력 속도 (−3,4)는 (0,4), 벽에서 멀어지는 (3,4)는 그대로 (3,4)다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+float DotProduct(Vector2D Vec1, Vector2D Vec2) {
+    return Vec1.X * Vec2.X + Vec1.Y * Vec2.Y;
+}
+
+// Day 6
+    {
+        Vector2D OuterNormal = { 1.f, 0.f };
+        Vector2D SpeedA = { -3.f, 4.f };
+        Vector2D SpeedB = { 3.f, 4.f };
+        
+        float SpeedA_Result = DotProduct(OuterNormal, SpeedA);
+        float SpeedB_Result = DotProduct(OuterNormal, SpeedB);
+        
+        if (SpeedA_Result < 0) SpeedA = SpeedA - OuterNormal * SpeedA_Result;
+        if (SpeedB_Result < 0) SpeedB = SpeedB - OuterNormal * SpeedB_Result;
+    }
+```
+</details>
 
 #### 이번 주 실험 기록
 
