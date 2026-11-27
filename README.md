@@ -652,7 +652,25 @@ t=0.75, P=(3,0), 거리 2.
 
 **통과 기준**
 
-- [ ] (−1,3), (0,2), (1,1), (2,0) 순서다.
+- ✅ (−1,3), (0,2), (1,1), (2,0) 순서다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+    {
+        std::vector<float> t = { -1.f, 0.f, 1.f, 2.f };
+        Vector2D A = {0.f, 2.f };
+        Vector2D B = { 1.f, -1.f };
+        
+        for (const auto& Val : t ) {
+            Vector2D P = A + Val * B;
+            std::cout << "{ " << P.X << ", " << P.Y << " }" << ", ";
+        }
+        std::cout << '\n';
+    }
+```
+</details>
 
 ### 4일차 · 선분 최근접점
 
@@ -662,7 +680,29 @@ t=0.75, P=(3,0), 거리 2.
 
 **통과 기준**
 
-- [ ] 둘째 날 입력은 (3,0), A=B=(1,1)이면 Q와 관계없이 (1,1)이다.
+- ✅ 둘째 날 입력은 (3,0), A=B=(1,1)이면 Q와 관계없이 (1,1)이다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+    {
+        Vector2D A = {0.f, 0.f }, B = { 4.f, 0.f }, Q = { 3.f, 2.f };
+        Vector2D Ray = B - A;
+        float t = (Ray.X * Q.X + Ray.Y * Q.Y) / (Ray.X * Ray.X + Ray.Y * Ray.Y);
+        Vector2D Proj = A + Ray * std::clamp(t, 0.f, 1.f);
+        
+        std::cout << "Projection : { " << Proj.X << ", " << Proj.Y << " }" << '\n';
+        
+        A = {1.f, 1.f }, B = { 1.f, 1.f };
+        Ray = B - A;
+        float LengthSq = (Ray.X * Ray.X + Ray.Y * Ray.Y);
+        if (LengthSq == 0.f) std::cout << "Projection : { " << A.X << ", " << A.Y << " }" << '\n';
+        
+        std::cout << "Projection : { " << Proj.X << ", " << Proj.Y << " }" << '\n';
+    }
+```
+</details>
 
 ### 5일차 · 양 끝 검산
 
@@ -672,7 +712,28 @@ t=0.75, P=(3,0), 거리 2.
 
 **통과 기준**
 
-- [ ] 최근접점은 왼쪽 끝, 오른쪽 끝, 내부의 (2,0) 순서다.
+- ✅ 최근접점은 왼쪽 끝, 오른쪽 끝, 내부의 (2,0) 순서다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+    {
+       Vector2D A = {0.f, 0.f }, B = { 4.f, 0.f };
+        std::vector<Vector2D> Q = {{-2.f, 1.f }, { 6.f, 1.f }, { 2.f, 1.f } };
+        
+        for (auto& Val : Q) {
+            Vector2D OriginVec = B - A;
+            Vector2D Dir = Normalize(OriginVec);
+            float Proj = (OriginVec.X * Val.X + OriginVec.Y * Val.Y) / OriginVec.Get_Distance();
+            
+            Proj = std::max(std::min(Proj, OriginVec.Get_Distance()), 0.f);
+
+            Vector2D ProjPos = Dir * Proj;
+        }
+    }
+```
+</details>
 
 ### 6일차 · 레이저 피격
 
@@ -682,7 +743,28 @@ t=0.75, P=(3,0), 거리 2.
 
 **통과 기준**
 
-- [ ] 중심 (4,1)은 피격, (5,1)은 거리 √2라서 안전하다.
+- ✅ 중심 (4,1)은 피격, (5,1)은 거리 √2라서 안전하다.
+
+<details>
+<summary>구현 결과</summary>
+  
+```cpp
+    {
+       Vector2D A = {0.f, 0.f }, B = { 4.f, 0.f }, CenterA = {4.f, 1.f}, CenterB = {5.f, 1.f};
+        Vector2D RayVec = B - A;
+        
+        float t = (RayVec.X * CenterA.X + RayVec.Y * CenterA.Y) / (RayVec.X * RayVec.X + RayVec.Y * RayVec.Y);
+
+        Vector2D Proj = A + RayVec * std::clamp(t, 0.f, 1.f);
+        if ((CenterA - Proj).Get_Distance() <= Radius) std::cout << "CenterA Hit" << '\n';
+        
+         t = (RayVec.X * CenterB.X + RayVec.Y * CenterB.Y) / (RayVec.X * RayVec.X + RayVec.Y * RayVec.Y);
+
+         Proj = A + RayVec * std::clamp(t, 0.f, 1.f);
+        if ((CenterB - Proj).Get_Distance() <= Radius) std::cout << "CenterB Hit" << '\n';
+}
+```
+</details>
 
 #### 이번 주 실험 기록
 
